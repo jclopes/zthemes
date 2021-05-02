@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+         .box {
+             float: left;
+             height: 20px;
+             width: 20px;
+             border: 1px dashed black;
+             clear: both;
+         }
+        </style>
+        <script>
+         function extractColor(e) {
+             i = e.firstElementChild;
+             while (i != null) {
+                 if (i.nodeName == "key") {
+                     r = i.nextElementSibling;
+                     switch (i.textContent) {
+                         case 'Blue Component': b = Math.round(parseFloat(r.textContent) * 255);
+                             break;
+                         case 'Green Component': g = Math.round(parseFloat(r.textContent) * 255);
+                             break;
+                         case 'Red Component': r = Math.round(parseFloat(r.textContent) * 255);
+                     }
+                 }
+
+                 i = i.nextElementSibling;
+             }
+
+             return '#' + r.toString(16).padStart(2, "0") + g.toString(16).padStart(2, "0") + b.toString(16).padStart(2, "0");
+         }
+
+         function render() {
+             var input, parser, xmlDoc;
+
+             input = document.getElementById("input").value;
+
+             parser = new DOMParser();
+
+             xmlDoc = parser.parseFromString(input, "text/xml");
+             colors = xmlDoc.getElementsByTagName("plist")[0].getElementsByTagName("dict")[0];
+             colorNames = colors.getElementsByTagName("key")[0].textContent;
+
+             var result = '';
+             let colArr = [];
+             colors.childNodes.forEach(function(x) {if (x.nodeName == "key") colArr.push(x.textContent)});
+             let valArr = [];
+             dicts = colors.childNodes.forEach(function(x) {if (x.nodeName == "dict") valArr.push(extractColor(x))});
+             for (i = 0; i < colArr.length; i++) {
+                 result += '<div class="box" style="background-color: ' + valArr[i] + ';"></div><p>' + colArr[i] + '[' + valArr[i] + ']' + '</p>';
+             }
+             document.getElementById("result").innerHTML = result;
+         }
+        </script>
+        <title>zThemes</title>
+    </head>
+    <body>
+        <textarea id="input">
+        </textarea>
+        <button onclick="render()">Render</button>
+        <div id="result" >
+        </div>
+    </body>
+</html>
